@@ -14,6 +14,7 @@ export default function HeaderMobile() {
             alt="Logo" 
             width={180} 
             height={80}
+            className="w-45 h-20"
           />
         </Link>
         <div className="flex flex-col gap-4">
@@ -26,19 +27,25 @@ export default function HeaderMobile() {
           />
           <div className={`${
               open ? "flex" : "hidden"
-            } absolute top-20 left-0 w-full flex-col gap-4 bg-[#222222] shadow-lg z-100`}
+            } absolute top-20 left-0 w-full flex-col gap-4 bg-[#222222] shadow-lg z-100 mt-6`}
           >
             <nav className="flex flex-col text-[#E5E0DD] text-center">
               <ul className="cursor-pointer px-4 py-2 hover:text-[#CFC9C5] border-t-[0.1px] border-[#E5E0DD]">
-                  Home
+                  <Link href="#">
+                    Home
+                  </Link>
               </ul>
 
               <ul className="cursor-pointer px-2 py-2 hover:text-[#CFC9C5] border-t-[0.1px] border-[#E5E0DD]">
-                  Sobre mim
+                  <Link href="#apresentacao">
+                    Sobre mim
+                  </Link>
               </ul>
 
               <ul className="cursor-pointer px-4 py-2 hover:text-[#CFC9C5] border-t-[0.1px] border-[#E5E0DD]">
-                  Contato
+                  <Link href="#contato">
+                    Contato
+                  </Link>
               </ul>
             </nav>
           </div>

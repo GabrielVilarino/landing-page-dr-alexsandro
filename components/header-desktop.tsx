@@ -11,6 +11,7 @@ export default function HeaderDesktop() {
                 alt="Logo" 
                 width={250} 
                 height={80}
+                className="w-62.5 h-20"
               />
             </Link>
             <nav className="flex gap-4 text-[#E5E0DD]">

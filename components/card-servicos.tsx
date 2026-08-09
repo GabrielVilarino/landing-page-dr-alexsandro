@@ -14,6 +14,7 @@ export default function CardServicos({ image, title, description }: CardServicos
         alt={title}
         width={35}
         height={35}
+        className="w-8.75 h-8.75"
       />
 
       <h2 className="text-[#92714E] font-bold text-md mt-2 mb-2">{title}</h2>
