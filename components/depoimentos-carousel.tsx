@@ -9,6 +9,13 @@ import {
   CarouselItem,
   useCarousel,
 } from "@/components/ui/carousel";
+import { 
+  Card,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import Image from "next/image";
+import { Label } from "@/components/ui/label";
 
 type Testimonial = {
   text: string;
@@ -77,22 +84,22 @@ export default function DepoimentosCarousel({ testimonials }: { testimonials: Te
       <CarouselContent>
         {testimonials.map((testimonial, index) => (
           <CarouselItem key={index}>
-            <div className="relative h-100 rounded-lg bg-[#9A7854] px-10 py-7 text-white shadow-md">
-              {/* Aspas */}
-              <span className="absolute left-12 top-3 font-serif text-[52px] leading-none text-white/50">
-                “
-              </span>
-
-              {/* Texto */}
-              <p className="relative z-10 mx-auto max-w-280 text-center text-md">
-                {testimonial.text}
-              </p>
-
-              {/* Autor */}
-              <p className="absolute bottom-8 left-0 right-0 text-center text-sm font-medium">
-                — {testimonial.author}
-              </p>
-            </div>
+            <Card className="bg-[#91704d] h-100">
+              <CardContent className="flex flex-col text-white px-20 py-4 gap-2">
+                <Image
+                  src="/aspas.png" 
+                  alt="Aspas"
+                  width={50}
+                  height={50}
+                />
+                <div className="flex h-full flex-col items-center justify-center text-center px-20 gap-4">
+                  <Label className="text-lg">{testimonial.text}</Label>
+                  <CardFooter className="bg-[#91704d] border-none">
+                    <Label>— {testimonial.author}</Label>
+                  </CardFooter>
+                </div>
+              </CardContent>
+            </Card>
           </CarouselItem>
         ))}
       </CarouselContent>

@@ -15,19 +15,19 @@ import Autoplay from "embla-carousel-autoplay";
 
 const slides = [
   {
-    image: "/teste-1.png",
+    image: "/foto-1.jpeg",
     title: "Assistência Médica",
     description: "Conheça nossos serviços e especialidades",
     button: "Saiba mais",
   },
   {
-    image: "/teste-1.png",
+    image: "/foto-2.jpeg",
     title: "Cuidado especializado",
     description: "Atendimento humanizado e especializado",
     button: "Saiba mais",
   },
   {
-    image: "/teste-1.png",
+    image: "/foto-2.jpeg",
     title: "Nossa equipe",
     description: "Profissionais preparados para cuidar de você",
     button: "Saiba mais",
@@ -71,13 +71,24 @@ export default function HeroCarousel() {
         <CarouselContent>
           {slides.map((slide, index) => (
             <CarouselItem key={index}>
-              <div className="relative h-100 w-full overflow-hidden">
+              <div className="relative h-70 sm:h-90 md:h-100 w-full overflow-hidden">
+                {/* Fundo preenchendo todo o banner */}
+                <Image
+                  src={slide.image}
+                  alt=""
+                  fill
+                  className="object-cover blur-xl scale-110"
+                  aria-hidden="true"
+                />
+
+                {/* Imagem principal sem cortes */}
                 <Image
                   src={slide.image}
                   alt={slide.title}
                   fill
                   priority={index === 0}
-                  className="object-cover"
+                  sizes="100vw"
+                  className="object-contain"
                 />
 
                 <div className="absolute inset-0 bg-black/30" />

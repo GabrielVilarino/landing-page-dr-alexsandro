@@ -2,11 +2,11 @@ import Image from "next/image";
 
 export default function ApresentacaoContainer() {
   return (
-    <section id="apresentacao" className="py-8 bg-[#222222] px-8 md:px-16 lg:px-32">
+    <section id="apresentacao" className="py-8 bg-[#664e33] px-8 md:px-16 lg:px-32">
       <div className="flex flex-col sm:flex-row items-center justify-center gap-16">
         <Image 
-          src="/sublogo.png"
-          alt="Sublogo"
+          src="/foto-apresentacao.png"
+          alt="Foto de Apresentação"
           width={300}
           height={300}
           className="w-50 h-50 sm:w-75 sm:h-75"

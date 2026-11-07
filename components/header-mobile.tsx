@@ -2,28 +2,28 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { Menu } from "lucide-react";
 
 export default function HeaderMobile() {
   const [open, setOpen] = useState(false);
   return (
     <header className="sm:hidden">
-      <div className="flex justify-between items-center py-4 px-8 md:px-16 lg:px-32 bg-[#222222]">
+      <div className="flex justify-between items-center py-4 px-8 md:px-16 lg:px-32 bg-[#E5E0DD]">
         <Link href="#">
           <Image 
-            src="/logo.png" 
+            src="/logo-1.png" 
             alt="Logo" 
             width={180} 
             height={80}
-            className="w-45 h-20"
+            className="w-auto h-auto"
           />
         </Link>
         <div className="flex flex-col gap-4">
-          <Image 
-            src="/menu-mobile.png"
-            alt="Menu"
+          <Menu 
             width={30}
             height={30}
             onClick={() => setOpen(!open)}
+            className="text-[#94704e]"
           />
           <div className={`${
               open ? "flex" : "hidden"
