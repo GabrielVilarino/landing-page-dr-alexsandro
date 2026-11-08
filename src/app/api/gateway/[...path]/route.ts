@@ -11,6 +11,7 @@ const allowedPaths = [
   /^admin\/users(?:\/\d+(?:\/(?:active|roles|reset-password))?)?$/,
   /^admin\/roles(?:\/\d+(?:\/permissions)?)?$/,
   /^admin\/permissions$/,
+  /^patients(?:\/\d+(?:\/history)?)?$/,
 ];
 
 async function handle(request: NextRequest, context: RouteContext) {

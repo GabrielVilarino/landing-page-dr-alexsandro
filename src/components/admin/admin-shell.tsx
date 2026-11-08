@@ -9,6 +9,7 @@ import {
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
+  Stethoscope,
   ShieldCheck,
   Users,
   X,
@@ -28,6 +29,12 @@ import { SessionProvider, useSession } from "@/features/auth/hooks/use-session";
 import { cn } from "@/lib/utils";
 
 const links = [
+  {
+    href: "/admin/pacientes",
+    label: "Pacientes",
+    icon: Stethoscope,
+    permission: "patients.read",
+  },
   {
     href: "/admin/colaboradores",
     label: "Colaboradores",
