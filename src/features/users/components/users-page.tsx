@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeft, ChevronRight, LoaderCircle, Plus, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, LoaderCircle, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 
@@ -373,7 +373,7 @@ export function UsersPage() {
             </div>
           ) : data?.items.length ? (
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-secondary/50">
                 <TableRow>
                   <TableHead>Colaborador</TableHead>
                   <TableHead>Papéis</TableHead>
@@ -416,13 +416,14 @@ export function UsersPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <Button
-                        variant="outline"
+                        variant="ghost"
+                        size="icon"
                         nativeButton={false}
-                        render={
-                          <Link href={`/admin/colaboradores/${user.id}`} />
-                        }
+                        render={<Link href={`/admin/pacientes/${user.id}`} />}
+                        aria-label={`Ver cadastro de ${user.name}`}
+                        title="Ver cadastro"
                       >
-                        Detalhes
+                        <Eye />
                       </Button>
                     </TableCell>
                   </TableRow>
