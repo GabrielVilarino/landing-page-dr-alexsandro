@@ -4,7 +4,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="admin-theme min-h-screen font-[var(--font-geist-sans)]">
+    <div className="admin-theme min-h-screen font-(--font-geist-sans)">
       {children}
     </div>
   );

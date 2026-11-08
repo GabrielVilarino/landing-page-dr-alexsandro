@@ -25,7 +25,7 @@ export default async function LoginPage({
             alt="Dr. Alexsandro Araújo — Médico"
             width={280}
             height={96}
-            className="h-auto w-[260px]"
+            className="h-auto w-65"
             priority
           />
         </div>

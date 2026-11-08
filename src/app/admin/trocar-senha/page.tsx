@@ -20,7 +20,7 @@ export default function ChangePasswordPage() {
             alt="Dr. Alexsandro Araújo"
             width={230}
             height={80}
-            className="h-auto w-[220px]"
+            className="h-auto w-55"
             priority
           />
         </div>
