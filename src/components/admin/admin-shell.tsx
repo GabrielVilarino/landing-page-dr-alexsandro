@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  CalendarDays,
   LogOut,
   Menu,
   PanelLeftClose,
@@ -29,6 +30,12 @@ import { SessionProvider, useSession } from "@/features/auth/hooks/use-session";
 import { cn } from "@/lib/utils";
 
 const links = [
+  {
+    href: "/admin/agenda",
+    label: "Agenda",
+    icon: CalendarDays,
+    permission: "appointments.read",
+  },
   {
     href: "/admin/pacientes",
     label: "Pacientes",

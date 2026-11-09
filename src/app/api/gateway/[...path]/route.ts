@@ -12,6 +12,11 @@ const allowedPaths = [
   /^admin\/roles(?:\/\d+(?:\/permissions)?)?$/,
   /^admin\/permissions$/,
   /^patients(?:\/\d+(?:\/history)?)?$/,
+  /^doctors$/,
+  /^appointment-types(?:\/\d+)?$/,
+  /^doctor-schedules(?:\/\d+)?$/,
+  /^schedule-blocks(?:\/\d+)?$/,
+  /^appointments(?:\/availability|\/\d+\/(?:confirm|start|finish|no-show|cancel|reschedule))?$/,
 ];
 
 async function handle(request: NextRequest, context: RouteContext) {
@@ -43,3 +48,4 @@ export const GET = handle;
 export const POST = handle;
 export const PUT = handle;
 export const PATCH = handle;
+export const DELETE = handle;

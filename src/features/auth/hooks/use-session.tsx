@@ -38,15 +38,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       const currentUser = await authService.me();
       setUser(currentUser);
       setError(null);
-      if (
-        currentUser.must_change_password &&
-        pathname !== "/admin/trocar-senha"
-      ) {
-        router.replace("/admin/trocar-senha");
-      }
     } catch (caught) {
       setUser(null);
       if (caught instanceof ApiError && caught.status === 401) {
+        setError(null);
         router.replace("/admin/login");
         router.refresh();
       } else {
@@ -55,12 +50,18 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [pathname, router]);
+  }, [router]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => void reload(), 0);
     return () => window.clearTimeout(timeout);
   }, [reload]);
+
+  useEffect(() => {
+    if (user?.must_change_password && pathname !== "/admin/trocar-senha") {
+      router.replace("/admin/trocar-senha");
+    }
+  }, [pathname, router, user]);
 
   useEffect(() => {
     const expired = () => {

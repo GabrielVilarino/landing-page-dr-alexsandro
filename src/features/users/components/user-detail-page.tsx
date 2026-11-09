@@ -132,18 +132,21 @@ export function UserDetailPage({ id }: { id: number }) {
 
   return (
     <>
-      <Button
-        variant="ghost"
-        className="mb-4"
-        nativeButton={false}
-        render={<Link href="/admin/colaboradores" />}
-      >
-        <ArrowLeft />
-        Voltar
-      </Button>
       <PageHeader
         title={user?.name ?? "Colaborador"}
         description="Edite os dados do colaborador."
+        backAction={
+          <Button
+            variant="ghost"
+            size="icon"
+            nativeButton={false}
+            render={<Link href="/admin/colaboradores" />}
+            aria-label="Voltar para colaboradores"
+            title="Voltar para colaboradores"
+          >
+            <ArrowLeft />
+          </Button>
+        }
       />
       {apiError && (
         <Alert variant="destructive" className="mb-5">

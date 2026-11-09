@@ -419,7 +419,7 @@ export function UsersPage() {
                         variant="ghost"
                         size="icon"
                         nativeButton={false}
-                        render={<Link href={`/admin/pacientes/${user.id}`} />}
+                        render={<Link href={`/admin/colaboradores/${user.id}`} />}
                         aria-label={`Ver cadastro de ${user.name}`}
                         title="Ver cadastro"
                       >

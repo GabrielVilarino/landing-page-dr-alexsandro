@@ -26,13 +26,28 @@ export function PatientCreatePage() {
       <PageHeader
         title="Novo paciente"
         description="Cadastre os dados do paciente e, se necessário, seus responsáveis."
-        actions={
+        backAction={
           <Button
-            variant="outline"
+            variant="ghost"
+            size="icon"
             nativeButton={false}
-            render={<Link href={can("patients.read") ? "/admin/pacientes" : "/admin"} />}
+            render={
+              <Link
+                href={can("patients.read") ? "/admin/pacientes" : "/admin"}
+              />
+            }
+            aria-label={
+              can("patients.read")
+                ? "Voltar para pacientes"
+                : "Voltar ao início"
+            }
+            title={
+              can("patients.read")
+                ? "Voltar para pacientes"
+                : "Voltar ao início"
+            }
           >
-            <ArrowLeft /> {can("patients.read") ? "Voltar à lista" : "Voltar ao início"}
+            <ArrowLeft />
           </Button>
         }
       />
@@ -42,8 +57,9 @@ export function PatientCreatePage() {
           <AlertTitle>Paciente cadastrado com sucesso</AlertTitle>
           <AlertDescription className="space-y-4">
             <p>
-              {createdPatient.full_name} foi cadastrado com o ID {createdPatient.id}.
-              Sua permissão atual permite novos cadastros, mas não a consulta dos dados.
+              {createdPatient.full_name} foi cadastrado com o ID{" "}
+              {createdPatient.id}. Sua permissão atual permite novos cadastros,
+              mas não a consulta dos dados.
             </p>
             <div className="flex flex-wrap gap-2">
               <Button
@@ -54,7 +70,11 @@ export function PatientCreatePage() {
               >
                 <Plus /> Cadastrar outro paciente
               </Button>
-              <Button variant="outline" nativeButton={false} render={<Link href="/admin" />}>
+              <Button
+                variant="outline"
+                nativeButton={false}
+                render={<Link href="/admin" />}
+              >
                 Voltar ao início
               </Button>
             </div>
@@ -64,13 +84,18 @@ export function PatientCreatePage() {
         <PatientForm
           key={formKey}
           mode="create"
-          onCancel={() => router.push(can("patients.read") ? "/admin/pacientes" : "/admin")}
+          onCancel={() =>
+            router.push(can("patients.read") ? "/admin/pacientes" : "/admin")
+          }
           onSaved={(patient) => {
             if (!can("patients.read")) {
               setCreatedPatient(patient);
               return;
             }
-            window.sessionStorage.setItem("patient-created", String(patient.id));
+            window.sessionStorage.setItem(
+              "patient-created",
+              String(patient.id),
+            );
             router.replace(`/admin/pacientes/${patient.id}`);
             router.refresh();
           }}

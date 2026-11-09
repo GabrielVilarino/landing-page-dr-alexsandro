@@ -87,7 +87,7 @@ function RoleForm({
           <div>
             <CardTitle>{role ? `Editar ${role.name}` : "Novo papel"}</CardTitle>
             <CardDescription>
-              Selecione somente permissões previstas no catálogo do backend.
+              Selecione somente permissões previstas no catálogo.
             </CardDescription>
           </div>
           <Button

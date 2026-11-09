@@ -27,7 +27,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSession } from "@/features/auth/hooks/use-session";
 import { PatientForm } from "@/features/patients/components/patient-form";
 import { patientService } from "@/features/patients/services/patient-service";
-import type { Patient, PatientHistoryEntry } from "@/features/patients/types/patient";
+import type {
+  Patient,
+  PatientHistoryEntry,
+} from "@/features/patients/types/patient";
 import { ApiError, getErrorMessage } from "@/lib/api-error";
 
 const HISTORY_LIMIT = 50;
@@ -35,7 +38,9 @@ const HISTORY_LIMIT = 50;
 function formatDate(value: string) {
   const [year, month, day] = value.split("-").map(Number);
   if (!year || !month || !day) return "—";
-  return new Intl.DateTimeFormat("pt-BR").format(new Date(year, month - 1, day));
+  return new Intl.DateTimeFormat("pt-BR").format(
+    new Date(year, month - 1, day),
+  );
 }
 
 function formatInstant(value: string) {
@@ -89,26 +94,33 @@ export function PatientDetailPage({ id }: { id: number }) {
           ? "O paciente não existe ou foi removido."
           : getErrorMessage(caught),
       );
-      if (caught instanceof ApiError && caught.status === 403) await reloadSession();
+      if (caught instanceof ApiError && caught.status === 403)
+        await reloadSession();
     } finally {
       setLoading(false);
     }
   }, [id, reloadSession]);
 
-  const loadHistory = useCallback(async (offsetToLoad: number) => {
-    if (!Number.isInteger(id) || id <= 0) return;
-    setHistoryLoading(true);
-    setHistoryError(null);
-    try {
-      setHistory(await patientService.history(id, HISTORY_LIMIT, offsetToLoad));
-    } catch (caught) {
-      setHistory([]);
-      setHistoryError(getErrorMessage(caught));
-      if (caught instanceof ApiError && caught.status === 403) await reloadSession();
-    } finally {
-      setHistoryLoading(false);
-    }
-  }, [id, reloadSession]);
+  const loadHistory = useCallback(
+    async (offsetToLoad: number) => {
+      if (!Number.isInteger(id) || id <= 0) return;
+      setHistoryLoading(true);
+      setHistoryError(null);
+      try {
+        setHistory(
+          await patientService.history(id, HISTORY_LIMIT, offsetToLoad),
+        );
+      } catch (caught) {
+        setHistory([]);
+        setHistoryError(getErrorMessage(caught));
+        if (caught instanceof ApiError && caught.status === 403)
+          await reloadSession();
+      } finally {
+        setHistoryLoading(false);
+      }
+    },
+    [id, reloadSession],
+  );
 
   useEffect(() => {
     if (!can("patients.read")) return;
@@ -152,7 +164,11 @@ export function PatientDetailPage({ id }: { id: number }) {
         <AlertDescription className="space-y-3">
           <p>{error ?? "Paciente não encontrado."}</p>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" nativeButton={false} render={<Link href="/admin/pacientes" />}>
+            <Button
+              variant="outline"
+              nativeButton={false}
+              render={<Link href="/admin/pacientes" />}
+            >
               <ArrowLeft /> Voltar à lista
             </Button>
             <Button variant="outline" onClick={() => void loadPatient()}>
@@ -170,9 +186,16 @@ export function PatientDetailPage({ id }: { id: number }) {
         <PageHeader
           title={`Editar ${patient.full_name}`}
           description={`Versão ${patient.version}. Campos protegidos permanecem preservados quando deixados vazios.`}
-          actions={
-            <Button variant="outline" onClick={() => setEditing(false)}>
-              <ArrowLeft /> Voltar ao cadastro
+          backAction={
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => setEditing(false)}
+              aria-label="Voltar ao cadastro do paciente"
+              title="Voltar ao cadastro do paciente"
+            >
+              <ArrowLeft />
             </Button>
           }
         />
@@ -197,17 +220,24 @@ export function PatientDetailPage({ id }: { id: number }) {
       <PageHeader
         title="Cadastro do paciente"
         description="Consulte os dados cadastrais, responsáveis e histórico de alterações."
+        backAction={
+          <Button
+            variant="ghost"
+            size="icon"
+            nativeButton={false}
+            render={<Link href="/admin/pacientes" />}
+            aria-label="Voltar para pacientes"
+            title="Voltar para pacientes"
+          >
+            <ArrowLeft />
+          </Button>
+        }
         actions={
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" nativeButton={false} render={<Link href="/admin/pacientes" />}>
-              <ArrowLeft /> Voltar
+          can("patients.update") && (
+            <Button type="button" onClick={() => setEditing(true)}>
+              <Edit3 /> Editar paciente
             </Button>
-            {can("patients.update") && (
-              <Button onClick={() => setEditing(true)}>
-                <Edit3 /> Editar paciente
-              </Button>
-            )}
-          </div>
+          )
         }
       />
 
@@ -237,40 +267,101 @@ export function PatientDetailPage({ id }: { id: number }) {
 
       <Tabs defaultValue="data">
         <TabsList variant="line" className="mb-4 w-full justify-start">
-          <TabsTrigger value="data"><UserRound /> Dados cadastrais</TabsTrigger>
-          <TabsTrigger value="guardians"><UsersRound /> Responsáveis ({patient.guardians.length})</TabsTrigger>
-          <TabsTrigger value="history"><History /> Histórico</TabsTrigger>
+          <TabsTrigger value="data">
+            <UserRound /> Dados cadastrais
+          </TabsTrigger>
+          <TabsTrigger value="guardians">
+            <UsersRound /> Responsáveis ({patient.guardians.length})
+          </TabsTrigger>
+          <TabsTrigger value="history">
+            <History /> Histórico
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="data">
           <Card>
-            <CardHeader><CardTitle>Dados cadastrais</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>Dados cadastrais</CardTitle>
+            </CardHeader>
             <CardContent className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              <div><p className="text-xs text-muted-foreground">Nome completo</p><p className="font-medium">{patient.full_name}</p></div>
-              <div><p className="text-xs text-muted-foreground">CPF</p><p className="font-mono text-sm">{patient.cpf_masked}</p></div>
-              <div><p className="text-xs text-muted-foreground">Data de nascimento</p><p className="font-medium">{formatDate(patient.birth_date)}</p></div>
-              <div><p className="text-xs text-muted-foreground">Telefone</p><p className="flex items-center gap-2 font-medium"><Phone className="size-4 text-muted-foreground" />{patient.phone}</p></div>
-              <div><p className="text-xs text-muted-foreground">E-mail</p><p className="flex items-center gap-2 font-medium break-all"><Mail className="size-4 text-muted-foreground" />{patient.email}</p></div>
-              <div><p className="text-xs text-muted-foreground">Última atualização</p><p className="flex items-center gap-2 font-medium"><Clock3 className="size-4 text-muted-foreground" />{formatInstant(patient.updated_at)}</p></div>
+              <div>
+                <p className="text-xs text-muted-foreground">Nome completo</p>
+                <p className="font-medium">{patient.full_name}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">CPF</p>
+                <p className="font-mono text-sm">{patient.cpf_masked}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">
+                  Data de nascimento
+                </p>
+                <p className="font-medium">{formatDate(patient.birth_date)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Telefone</p>
+                <p className="flex items-center gap-2 font-medium">
+                  <Phone className="size-4 text-muted-foreground" />
+                  {patient.phone}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">E-mail</p>
+                <p className="flex items-center gap-2 font-medium break-all">
+                  <Mail className="size-4 text-muted-foreground" />
+                  {patient.email}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">
+                  Última atualização
+                </p>
+                <p className="flex items-center gap-2 font-medium">
+                  <Clock3 className="size-4 text-muted-foreground" />
+                  {formatInstant(patient.updated_at)}
+                </p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="guardians">
           {patient.guardians.length === 0 ? (
-            <Card><CardContent className="grid min-h-48 place-items-center text-center text-sm text-muted-foreground">Nenhum responsável vinculado.</CardContent></Card>
+            <Card>
+              <CardContent className="grid min-h-48 place-items-center text-center text-sm text-muted-foreground">
+                Nenhum responsável vinculado.
+              </CardContent>
+            </Card>
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">
               {patient.guardians.map((guardian) => (
                 <Card key={guardian.id}>
                   <CardHeader className="flex-row items-start justify-between gap-3">
-                    <div><CardTitle>{guardian.name}</CardTitle><p className="mt-1 text-sm text-muted-foreground">{guardian.relationship || "Relação não informada"}</p></div>
+                    <div>
+                      <CardTitle>{guardian.name}</CardTitle>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {guardian.relationship || "Relação não informada"}
+                      </p>
+                    </div>
                     {guardian.is_primary && <Badge>Principal</Badge>}
                   </CardHeader>
                   <CardContent className="space-y-3 text-sm">
-                    <div><p className="text-xs text-muted-foreground">Documento</p><p className="font-mono">{guardian.document_masked || "Não informado"}</p></div>
-                    <div><p className="text-xs text-muted-foreground">Telefone</p><p>{guardian.phone || "Não informado"}</p></div>
-                    <div><p className="text-xs text-muted-foreground">E-mail</p><p className="break-all">{guardian.email || "Não informado"}</p></div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Documento</p>
+                      <p className="font-mono">
+                        {guardian.document_masked || "Não informado"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Telefone</p>
+                      <p>{guardian.phone || "Não informado"}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">E-mail</p>
+                      <p className="break-all">
+                        {guardian.email || "Não informado"}
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -280,30 +371,81 @@ export function PatientDetailPage({ id }: { id: number }) {
 
         <TabsContent value="history">
           <Card>
-            <CardHeader><CardTitle>Histórico de alterações</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>Histórico de alterações</CardTitle>
+            </CardHeader>
             <CardContent>
               {historyError ? (
                 <Alert variant="destructive" role="alert">
                   <AlertTitle>Não foi possível carregar o histórico</AlertTitle>
-                  <AlertDescription className="space-y-3"><p>{historyError}</p><Button variant="outline" onClick={() => void loadHistory(historyOffset)}>Tentar novamente</Button></AlertDescription>
+                  <AlertDescription className="space-y-3">
+                    <p>{historyError}</p>
+                    <Button
+                      variant="outline"
+                      onClick={() => void loadHistory(historyOffset)}
+                    >
+                      Tentar novamente
+                    </Button>
+                  </AlertDescription>
                 </Alert>
               ) : historyLoading ? (
-                <div className="space-y-3"><Skeleton className="h-16 w-full" /><Skeleton className="h-16 w-full" /></div>
+                <div className="space-y-3">
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                </div>
               ) : history.length === 0 ? (
-                <p className="py-8 text-center text-sm text-muted-foreground">Nenhum evento encontrado.</p>
+                <p className="py-8 text-center text-sm text-muted-foreground">
+                  Nenhum evento encontrado.
+                </p>
               ) : (
                 <div className="space-y-3">
                   {history.map((entry) => (
-                    <article key={entry.id} className="flex flex-col gap-2 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between">
-                      <div><p className="font-medium">{actionLabel(entry.action)}</p><p className="text-sm text-muted-foreground">{entry.patient.full_name ?? patient.full_name}</p></div>
-                      <div className="text-sm sm:text-right"><Badge variant="secondary">Versão {entry.version}</Badge><p className="mt-1 text-xs text-muted-foreground">{formatInstant(entry.changed_at)} · usuário {entry.changed_by}</p></div>
+                    <article
+                      key={entry.id}
+                      className="flex flex-col gap-2 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div>
+                        <p className="font-medium">
+                          {actionLabel(entry.action)}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {entry.patient.full_name ?? patient.full_name}
+                        </p>
+                      </div>
+                      <div className="text-sm sm:text-right">
+                        <Badge variant="secondary">
+                          Versão {entry.version}
+                        </Badge>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {formatInstant(entry.changed_at)} · usuário{" "}
+                          {entry.changed_by}
+                        </p>
+                      </div>
                     </article>
                   ))}
                 </div>
               )}
               <div className="mt-4 flex justify-end gap-2 border-t pt-4">
-                <Button variant="outline" size="sm" disabled={historyOffset === 0 || historyLoading} onClick={() => setHistoryOffset(Math.max(0, historyOffset - HISTORY_LIMIT))}><ChevronLeft /> Anterior</Button>
-                <Button variant="outline" size="sm" disabled={history.length < HISTORY_LIMIT || historyLoading} onClick={() => setHistoryOffset(historyOffset + HISTORY_LIMIT)}>Próxima <ChevronRight /></Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={historyOffset === 0 || historyLoading}
+                  onClick={() =>
+                    setHistoryOffset(Math.max(0, historyOffset - HISTORY_LIMIT))
+                  }
+                >
+                  <ChevronLeft /> Anterior
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={history.length < HISTORY_LIMIT || historyLoading}
+                  onClick={() =>
+                    setHistoryOffset(historyOffset + HISTORY_LIMIT)
+                  }
+                >
+                  Próxima <ChevronRight />
+                </Button>
               </div>
             </CardContent>
           </Card>

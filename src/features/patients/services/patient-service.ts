@@ -1,4 +1,7 @@
-import type { PatientFormValues } from "@/features/patients/schemas/patient-schema";
+import {
+  patientSearchSchema,
+  type PatientFormValues,
+} from "@/features/patients/schemas/patient-schema";
 import type {
   CreateGuardianPayload,
   CreatePatientPayload,
@@ -11,11 +14,15 @@ import type {
 import { apiFetch } from "@/lib/api-client";
 
 function record(value: unknown): Record<string, unknown> {
-  return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {};
+  return typeof value === "object" && value !== null
+    ? (value as Record<string, unknown>)
+    : {};
 }
 
 function nullableString(value: unknown) {
-  return value === undefined || value === null || value === "" ? null : String(value);
+  return value === undefined || value === null || value === ""
+    ? null
+    : String(value);
 }
 
 function normalizeGuardian(value: unknown): PatientGuardian {
@@ -40,7 +47,9 @@ export function normalizePatient(value: unknown): Patient {
     birth_date: String(item.birth_date ?? ""),
     phone: String(item.phone ?? ""),
     email: String(item.email ?? ""),
-    guardians: Array.isArray(item.guardians) ? item.guardians.map(normalizeGuardian) : [],
+    guardians: Array.isArray(item.guardians)
+      ? item.guardians.map(normalizeGuardian)
+      : [],
     version: Number(item.version),
     created_by: Number(item.created_by),
     updated_by: Number(item.updated_by),
@@ -67,18 +76,30 @@ function optional(value: string) {
   return normalized === "" ? undefined : normalized;
 }
 
-function baseGuardian(guardian: PatientFormValues["guardians"][number]): CreateGuardianPayload {
+function baseGuardian(
+  guardian: PatientFormValues["guardians"][number],
+): CreateGuardianPayload {
   return {
     name: guardian.name.trim(),
-    ...(optional(guardian.document) !== undefined ? { document: optional(guardian.document) } : {}),
-    ...(optional(guardian.phone) !== undefined ? { phone: optional(guardian.phone) } : {}),
-    ...(optional(guardian.email) !== undefined ? { email: optional(guardian.email)?.toLowerCase() } : {}),
-    ...(optional(guardian.relationship) !== undefined ? { relationship: optional(guardian.relationship) } : {}),
+    ...(optional(guardian.document) !== undefined
+      ? { document: optional(guardian.document) }
+      : {}),
+    ...(optional(guardian.phone) !== undefined
+      ? { phone: optional(guardian.phone) }
+      : {}),
+    ...(optional(guardian.email) !== undefined
+      ? { email: optional(guardian.email)?.toLowerCase() }
+      : {}),
+    ...(optional(guardian.relationship) !== undefined
+      ? { relationship: optional(guardian.relationship) }
+      : {}),
     is_primary: guardian.is_primary,
   };
 }
 
-export function buildCreatePatientPayload(values: PatientFormValues): CreatePatientPayload {
+export function buildCreatePatientPayload(
+  values: PatientFormValues,
+): CreatePatientPayload {
   return {
     full_name: values.full_name.trim(),
     cpf: values.cpf.replace(/\D/g, ""),
@@ -89,7 +110,10 @@ export function buildCreatePatientPayload(values: PatientFormValues): CreatePati
   };
 }
 
-export function buildUpdatePatientPayload(values: PatientFormValues, version: number): UpdatePatientPayload {
+export function buildUpdatePatientPayload(
+  values: PatientFormValues,
+  version: number,
+): UpdatePatientPayload {
   return {
     full_name: values.full_name.trim(),
     ...(values.cpf.trim() !== "" ? { cpf: values.cpf.replace(/\D/g, "") } : {}),
@@ -110,11 +134,18 @@ export function buildUpdatePatientPayload(values: PatientFormValues, version: nu
 
 export const patientService = {
   async list(search = "", limit = 50, offset = 0, signal?: AbortSignal) {
-    const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
-    if (search) params.set("search", search);
-    const payload = await apiFetch<unknown>(`/gateway/patients?${params.toString()}`, {
-      signal,
+    const normalizedSearch = patientSearchSchema.parse(search);
+    const params = new URLSearchParams({
+      limit: String(limit),
+      offset: String(offset),
     });
+    if (normalizedSearch) params.set("search", normalizedSearch);
+    const payload = await apiFetch<unknown>(
+      `/gateway/patients?${params.toString()}`,
+      {
+        signal,
+      },
+    );
     const container = record(payload);
     const items = Array.isArray(payload)
       ? payload
@@ -129,7 +160,9 @@ export const patientService = {
     return normalizePatient(await apiFetch<unknown>(`/gateway/patients/${id}`));
   },
   async history(id: number, limit = 50, offset = 0) {
-    const payload = await apiFetch<unknown>(`/gateway/patients/${id}/history?limit=${limit}&offset=${offset}`);
+    const payload = await apiFetch<unknown>(
+      `/gateway/patients/${id}/history?limit=${limit}&offset=${offset}`,
+    );
     const container = record(payload);
     const items = Array.isArray(payload)
       ? payload
