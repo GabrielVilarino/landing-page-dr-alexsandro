@@ -15,19 +15,22 @@ import Autoplay from "embla-carousel-autoplay";
 
 const slides = [
   {
-    image: "/foto-1.jpeg",
+    backgroundImage: "/Fundo 1.jpeg",
+    doctorImage: "/Foto 1.png",
     title: "Assistência Médica",
     description: "Conheça nossos serviços e especialidades",
     button: "Saiba mais",
   },
   {
-    image: "/foto-2.jpeg",
+    backgroundImage: "/Fundo 1.jpeg",
+    doctorImage: "/Foto 1.png",
     title: "Cuidado especializado",
     description: "Atendimento humanizado e especializado",
     button: "Saiba mais",
   },
   {
-    image: "/foto-2.jpeg",
+    backgroundImage: "/Fundo 1.jpeg",
+    doctorImage: "/Foto 1.png",
     title: "Nossa equipe",
     description: "Profissionais preparados para cuidar de você",
     button: "Saiba mais",
@@ -75,21 +78,24 @@ export default function HeroCarousel() {
               <div className="relative h-70 sm:h-90 md:h-100 w-full overflow-hidden">
                 {/* Fundo preenchendo todo o banner */}
                 <Image
-                  src={slide.image}
+                  src={slide.backgroundImage}
                   alt=""
                   fill
-                  className="object-cover blur-xl scale-110"
+                  sizes="100vw"
+                  preload={index === 0}
+                  className="object-fill"
                   aria-hidden="true"
                 />
 
-                {/* Imagem principal sem cortes */}
+                {/* Retrato dimensionado pela altura do banner e fixado à direita */}
                 <Image
-                  src={slide.image}
+                  src={slide.doctorImage}
                   alt={slide.title}
-                  fill
-                  priority={index === 0}
-                  sizes="100vw"
-                  className="object-contain"
+                  width={4032}
+                  height={6048}
+                  sizes="(max-width: 640px) 60vw, 45vw"
+                  preload={index === 0}
+                  className="absolute top-0 right-0 h-full w-auto max-w-[60%] object-contain object-right"
                 />
 
                 <div className="absolute inset-0 bg-black/30" />
