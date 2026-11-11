@@ -61,7 +61,7 @@ export async function apiFetch<T>(
     "/session/login",
     "/session/logout",
     "/session/refresh",
-  ].includes(path);
+  ].includes(path) && !path.startsWith("/backend/public/");
   if (response.status === 401 && canRefresh) {
     try {
       attemptedRefresh = true;

@@ -16,6 +16,7 @@ const allowedPaths = [
   /^appointment-types(?:\/\d+)?$/,
   /^doctor-schedules(?:\/\d+)?$/,
   /^schedule-blocks(?:\/\d+)?$/,
+  /^pre-appointments(?:\/\d+\/(?:approve|reject))?$/,
   /^appointments(?:\/availability|\/\d+\/(?:confirm|start|finish|no-show|cancel|reschedule))?$/,
 ];
 

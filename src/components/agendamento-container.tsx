@@ -1,4 +1,4 @@
-import AgendamentoForm from "@/components/agendamento-form";
+import PreAppointmentForm from "@/features/pre-appointments/components/pre-appointment-form";
 
 export default function AgendamentoContainer() {
   return (
@@ -9,7 +9,7 @@ export default function AgendamentoContainer() {
       <h1 className="text-[#FFFFFF] font-bold text-2xl text-center">
         Agende sua consulta
       </h1>
-      <AgendamentoForm />
+      <PreAppointmentForm />
     </section>
   );
 }

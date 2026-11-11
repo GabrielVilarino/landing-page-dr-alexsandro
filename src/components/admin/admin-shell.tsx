@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   CalendarDays,
+  ClipboardList,
   LogOut,
   Menu,
   PanelLeftClose,
@@ -35,6 +36,12 @@ const links = [
     label: "Agenda",
     icon: CalendarDays,
     permission: "appointments.read",
+  },
+  {
+    href: "/admin/pre-agendamentos",
+    label: "Pré-agendamentos",
+    icon: ClipboardList,
+    permissions: ["appointments.read", "patients.read"],
   },
   {
     href: "/admin/pacientes",
@@ -121,7 +128,7 @@ function ShellContent({ children }: { children: React.ReactNode }) {
         aria-label="Navegação administrativa"
       >
         {links
-          .filter((link) => !link.permission || can(link.permission))
+          .filter((link) => (!link.permission || can(link.permission)) && (!link.permissions || link.permissions.every((permission) => can(permission))))
           .map((link) => {
             const active = pathname.startsWith(link.href);
             return (

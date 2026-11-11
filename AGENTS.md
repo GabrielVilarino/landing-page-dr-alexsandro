@@ -59,3 +59,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Mantenha textos e mensagens da interface em português do Brasil e codificados em UTF-8.
 - Consulte a documentação ou contrato da API antes de implementar ou mudar uma integração, confirmando método, URL, payload, permissão e códigos de resposta.
 - Após alterações, execute ao menos `bun run lint`; execute `bun run build` quando a mudança atingir rotas, layouts, configuração do Next.js ou tipagem compartilhada.
+
+## Regra de apresentação de selects
+
+- Selects devem exibir ao usuário o label humano da opção selecionada; valores técnicos e IDs permanecem internos no estado e são enviados ao backend sem aparecer como texto de apresentação.
