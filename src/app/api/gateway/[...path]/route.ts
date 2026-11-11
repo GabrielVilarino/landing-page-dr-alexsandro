@@ -16,6 +16,11 @@ const allowedPaths = [
   /^appointment-types(?:\/\d+)?$/,
   /^doctor-schedules(?:\/\d+)?$/,
   /^schedule-blocks(?:\/\d+)?$/,
+  /^calendar-integrations\/google$/,
+  /^calendar-integrations\/google\/authorize$/,
+  /^calendar-integrations\/google\/calendars$/,
+  /^calendar-integrations\/google\/calendar$/,
+  /^calendar-integrations\/google\/retry$/,
   /^pre-appointments(?:\/\d+\/(?:approve|reject))?$/,
   /^appointments(?:\/availability|\/\d+\/(?:confirm|start|finish|no-show|cancel|reschedule))?$/,
 ];

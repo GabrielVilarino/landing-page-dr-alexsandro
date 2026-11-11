@@ -69,6 +69,7 @@ import type {
   ScheduleBlock,
 } from "@/features/appointments/types/appointment";
 import { useSession } from "@/features/auth/hooks/use-session";
+import { CalendarIntegrationPanel } from "@/features/calendar-integrations/components/calendar-integration-panel";
 import { ApiError, getErrorMessage } from "@/lib/api-error";
 import { FieldError } from "./appointment-ui";
 
@@ -88,7 +89,11 @@ type Removal = {
 } | null;
 
 export function AppointmentSettingsPage() {
-  const { can, reload: reloadSession } = useSession();
+  const { can, reload: reloadSession, user } = useSession();
+  const canManageAppointments = can("appointments.manage");
+  const canReadAppointments = can("appointments.read");
+  const canReadCalendar = can("calendar_integrations.read");
+  const canManageCalendar = can("calendar_integrations.manage");
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [doctorId, setDoctorId] = useState("");
   const [types, setTypes] = useState<AppointmentType[]>([]);
@@ -101,6 +106,7 @@ export function AppointmentSettingsPage() {
   const doctorDataController = useRef<AbortController | null>(null);
   const doctorDataSequence = useRef(0);
   const selectedDoctorId = useRef("");
+  const oauthReturnHandled = useRef(false);
 
   const report = useCallback(
     async (caught: unknown) => {
@@ -115,8 +121,14 @@ export function AppointmentSettingsPage() {
       setLoading(true);
       try {
         const [loadedDoctors, loadedTypes] = await Promise.all([
-          appointmentService.doctors(signal),
-          appointmentService.types(false, signal),
+          canReadAppointments
+            ? appointmentService.doctors(signal)
+            : Promise.resolve(
+                user ? [{ id: user.id, name: user.name }] : [],
+              ),
+          canManageAppointments
+            ? appointmentService.types(false, signal)
+            : Promise.resolve([]),
         ]);
         setDoctors(loadedDoctors);
         setTypes(loadedTypes);
@@ -132,7 +144,7 @@ export function AppointmentSettingsPage() {
         if (!signal?.aborted) setLoading(false);
       }
     },
-    [report],
+    [canManageAppointments, canReadAppointments, report, user],
   );
   const loadDoctorData = useCallback(
     async (id: number) => {
@@ -196,7 +208,7 @@ export function AppointmentSettingsPage() {
   );
 
   useEffect(() => {
-    if (!can("appointments.manage")) return;
+    if (!canManageAppointments && !canReadCalendar) return;
     const controller = new AbortController();
     const timeout = window.setTimeout(
       () => void loadBase(controller.signal),
@@ -206,16 +218,49 @@ export function AppointmentSettingsPage() {
       window.clearTimeout(timeout);
       controller.abort();
     };
-  }, [can, loadBase]);
+  }, [canManageAppointments, canReadCalendar, loadBase]);
   useEffect(() => {
-    if (!doctorId) return;
+    if (!canManageAppointments || !doctorId) return;
     const timeout = window.setTimeout(
       () => void loadDoctorData(Number(doctorId)),
       0,
     );
     return () => window.clearTimeout(timeout);
-  }, [doctorId, loadDoctorData]);
+  }, [canManageAppointments, doctorId, loadDoctorData]);
   useEffect(() => () => doctorDataController.current?.abort(), []);
+  useEffect(() => {
+    if (loading || oauthReturnHandled.current) return;
+    oauthReturnHandled.current = true;
+
+    const url = new URL(window.location.href);
+    const returnedDoctorId = url.searchParams.get("doctor_id");
+    const returnedStatus = url.searchParams.get("status");
+    if (returnedDoctorId === null && returnedStatus === null) return;
+
+    const matchingDoctor = doctors.find(
+      (doctor) => String(doctor.id) === returnedDoctorId,
+    );
+    let doctorChangeTimeout: number | undefined;
+    if (returnedStatus === "PENDENTE" && matchingDoctor) {
+      doctorChangeTimeout = window.setTimeout(
+        () => changeDoctor(String(matchingDoctor.id)),
+        0,
+      );
+    }
+
+    url.searchParams.delete("doctor_id");
+    url.searchParams.delete("status");
+    const query = url.searchParams.toString();
+    window.history.replaceState(
+      null,
+      "",
+      `${url.pathname}${query ? `?${query}` : ""}${url.hash}`,
+    );
+    return () => {
+      if (doctorChangeTimeout !== undefined)
+        window.clearTimeout(doctorChangeTimeout);
+    };
+  }, [changeDoctor, doctors, loading]);
 
   async function remove() {
     if (!removal) return;
@@ -230,12 +275,12 @@ export function AppointmentSettingsPage() {
     }
   }
 
-  if (!can("appointments.manage")) return <AccessDenied />;
+  if (!canManageAppointments && !canReadCalendar) return <AccessDenied />;
   return (
     <div>
       <PageHeader
         title="Configurações da agenda"
-        description="Gerencie tipos de consulta, grades semanais e bloqueios."
+        description="Gerencie a agenda e as integrações dos médicos."
         backAction={
           <Button
             variant="ghost"
@@ -259,7 +304,8 @@ export function AppointmentSettingsPage() {
               onClick={() => {
                 const currentDoctorId = Number(selectedDoctorId.current);
                 void loadBase();
-                if (currentDoctorId) void loadDoctorData(currentDoctorId);
+                if (canManageAppointments && currentDoctorId)
+                  void loadDoctorData(currentDoctorId);
               }}
             >
               Tentar novamente
@@ -280,53 +326,85 @@ export function AppointmentSettingsPage() {
           <LoaderCircle className="size-8 animate-spin text-primary" />
         </div>
       ) : (
-        <Tabs defaultValue="types">
+        <Tabs defaultValue={canManageAppointments ? "types" : "calendar"}>
           <TabsList className="mb-5 h-auto w-full justify-start">
-            <TabsTrigger value="types">Tipos de consulta</TabsTrigger>
-            <TabsTrigger value="schedules">Grades semanais</TabsTrigger>
-            <TabsTrigger value="blocks">Bloqueios</TabsTrigger>
+            {canManageAppointments && (
+              <>
+                <TabsTrigger value="types">Tipos de consulta</TabsTrigger>
+                <TabsTrigger value="schedules">Grades semanais</TabsTrigger>
+                <TabsTrigger value="blocks">Bloqueios</TabsTrigger>
+              </>
+            )}
+            {canReadCalendar && (
+              <TabsTrigger value="calendar">Google Calendar</TabsTrigger>
+            )}
           </TabsList>
-          <TabsContent value="types">
-            <TypesPanel
-              items={types}
-              onReload={async () =>
-                setTypes(await appointmentService.types(false))
-              }
-              onError={report}
-            />
-          </TabsContent>
-          <TabsContent value="schedules">
-            <DoctorPicker
-              doctors={doctors}
-              value={doctorId}
-              onChange={changeDoctor}
-            />
-            <SchedulesPanel
-              doctorId={doctorId}
-              items={schedules}
-              onReload={reloadDoctorAfterMutation}
-              onRemove={(id) =>
-                setRemoval({ kind: "schedule", id, doctorId: Number(doctorId) })
-              }
-              onError={report}
-            />
-          </TabsContent>
-          <TabsContent value="blocks">
-            <DoctorPicker
-              doctors={doctors}
-              value={doctorId}
-              onChange={changeDoctor}
-            />
-            <BlocksPanel
-              doctorId={doctorId}
-              items={blocks}
-              onReload={reloadDoctorAfterMutation}
-              onRemove={(id) =>
-                setRemoval({ kind: "block", id, doctorId: Number(doctorId) })
-              }
-              onError={report}
-            />
-          </TabsContent>
+          {canManageAppointments && (
+            <>
+              <TabsContent value="types">
+                <TypesPanel
+                  items={types}
+                  onReload={async () =>
+                    setTypes(await appointmentService.types(false))
+                  }
+                  onError={report}
+                />
+              </TabsContent>
+              <TabsContent value="schedules">
+                <DoctorPicker
+                  doctors={doctors}
+                  value={doctorId}
+                  onChange={changeDoctor}
+                />
+                <SchedulesPanel
+                  doctorId={doctorId}
+                  items={schedules}
+                  onReload={reloadDoctorAfterMutation}
+                  onRemove={(id) =>
+                    setRemoval({
+                      kind: "schedule",
+                      id,
+                      doctorId: Number(doctorId),
+                    })
+                  }
+                  onError={report}
+                />
+              </TabsContent>
+              <TabsContent value="blocks">
+                <DoctorPicker
+                  doctors={doctors}
+                  value={doctorId}
+                  onChange={changeDoctor}
+                />
+                <BlocksPanel
+                  doctorId={doctorId}
+                  items={blocks}
+                  onReload={reloadDoctorAfterMutation}
+                  onRemove={(id) =>
+                    setRemoval({
+                      kind: "block",
+                      id,
+                      doctorId: Number(doctorId),
+                    })
+                  }
+                  onError={report}
+                />
+              </TabsContent>
+            </>
+          )}
+          {canReadCalendar && (
+            <TabsContent value="calendar">
+              <DoctorPicker
+                doctors={doctors}
+                value={doctorId}
+                onChange={changeDoctor}
+              />
+              <CalendarIntegrationPanel
+                doctorId={doctorId ? Number(doctorId) : null}
+                canManage={canManageCalendar}
+              />
+            </TabsContent>
+          )}
         </Tabs>
       )}
       <AlertDialog

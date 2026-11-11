@@ -181,7 +181,8 @@ export function AgendaPage() {
         description="Consultas e horários da clínica."
         actions={
           <div className="flex flex-wrap gap-2">
-            {can("appointments.manage") && (
+            {(can("appointments.manage") ||
+              can("calendar_integrations.read")) && (
               <Button
                 variant="outline"
                 nativeButton={false}
